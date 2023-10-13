@@ -1,10 +1,10 @@
-import Auth from './Auth';
-import SessionProvider from '@/components/SessionProvider';
+import Link from 'next/link';
+import io from 'socket.io-client';
 
 export default function Home() {
   return (
-    <SessionProvider>
-      <Auth />
-    </SessionProvider>
+    <>
+      <Link href="/login">Login</Link>
+    </>
   );
 }

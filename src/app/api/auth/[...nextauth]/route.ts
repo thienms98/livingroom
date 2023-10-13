@@ -1,4 +1,4 @@
-import { authOptions } from '@/app/utils';
+import { authOptions } from '@/utils/authOptions';
 import NextAuth from 'next-auth';
 
 const auth = NextAuth(authOptions)

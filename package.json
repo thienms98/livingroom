@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "server": "node server.js"
   },
   "dependencies": {
     "@livekit/components-react": "^1.3.0",
@@ -15,8 +16,11 @@
     "livekit-server-sdk": "^1.2.6",
     "next": "13.5.4",
     "next-auth": "^4.23.2",
+    "nodemailer": "^6.9.6",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -19,7 +19,7 @@ const Auth = () => {
       ) : (
         <>
           <div onClick={() => signIn('google')}>Log in with Google</div>
-          <div onClick={() => signIn('github')}>Log in with github</div>
+          <div onClick={() => signIn('github')}>Log in with Github</div>
         </>
       )}
     </main>
