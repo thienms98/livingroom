@@ -1,0 +1,30 @@
+datasource db {
+  url      = "postgresql://postgres:zxqcttr9889@db.agnwghbxhdxgugdsrqiz.supabase.co:5432/postgres"
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Profile {
+  username    String   @id
+  createdAt   DateTime @default(now())
+  displayName String?
+  metadata    String?
+  Account     Account?
+}
+
+model Account {
+  username String   @id
+  password String
+  User     Profile? @relation(fields: [username], references: [username])
+  Room     Room[]
+}
+
+model Room {
+  roomId   String   @id
+  roomName String   @unique
+  creator  String
+  Account  Account? @relation(fields: [creator], references: [username])
+}

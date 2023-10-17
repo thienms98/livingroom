@@ -1,10 +1,8 @@
-import Link from 'next/link';
-import io from 'socket.io-client';
+'use client';
+
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <>
-      <Link href="/login">Login</Link>
-    </>
-  );
+  const router = useRouter();
+  router.push('/dashboard');
 }
