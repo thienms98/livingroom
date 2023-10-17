@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function Middleware(req: NextRequest){
-  const token = req.headers
+  // const token = req.headers
 
-  console.log('fire middleware');
+  // console.log('fire middleware');
   
 
 
