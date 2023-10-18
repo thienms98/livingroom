@@ -24,7 +24,7 @@ const Page = () => {
     (async () => {
       try {
         const { data } = await axios(
-          `/api/auth/get_participant_token?room=${chosenRoom}&username=${user.username}`,
+          `/api/auth/getParticipantToken?room=${chosenRoom}&username=${user.username}`,
         );
         setToken(data.token);
       } catch (e) {

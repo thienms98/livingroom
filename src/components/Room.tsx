@@ -59,7 +59,7 @@ export default function RoomItem({ room }: { room: Room }) {
 
   const muteParticipant = (identity: string, tracks_id?: string, mute?: boolean) => {
     if (!tracks_id) return;
-    axios.post(`/api/mute_participant`, {
+    axios.post(`/api/muteParticipant`, {
       room: room.name,
       identity,
       tracks_id,
@@ -67,7 +67,7 @@ export default function RoomItem({ room }: { room: Room }) {
     });
   };
   const unSubscribeTrack = async (identity: string, trackSids: string[], subscribe: boolean) => {
-    await axios.put('/api/track_subscription', {
+    await axios.put('/api/trackSubscription', {
       room: room.name,
       identity,
       trackSids,
