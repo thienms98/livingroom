@@ -21,8 +21,6 @@ const Layout = (props: LayoutProps) => {
   if (!token) redirect('/login');
   const user = jwt.verify<AccountType>(token || '');
 
-  // if (!user) redirect('/login');
-
   return (
     user && (
       <div>

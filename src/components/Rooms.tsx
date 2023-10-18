@@ -1,7 +1,7 @@
 'use client';
 
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useMainContext } from './MainContext';
 import RoomItem from './Room';
 import { ImSpinner2 } from 'react-icons/im';
@@ -20,17 +20,17 @@ const Rooms = () => {
   const [modal, setModal] = useState<boolean>(false);
 
   useEffect(() => {
-    (async () => await getRoom())();
+    (async () => await getRooms())();
   }, []);
 
-  const getRoom = async () => {
+  const getRooms = async () => {
     const { data } = await axios.get('/api/rooms');
     setRooms(data || []);
   };
   const createRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     const room = await axios.post('/api/rooms', { room: newRoom });
-    getRoom();
+    getRooms();
     setNewRoom('');
     setModal(false);
   };
@@ -102,4 +102,4 @@ const Rooms = () => {
   );
 };
 
-export default Rooms;
+export default memo(Rooms);

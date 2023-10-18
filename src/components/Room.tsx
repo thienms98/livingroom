@@ -1,10 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useMainContext } from './MainContext';
-import { type ParticipantInfo, type TrackInfo, type Room, TrackSource } from 'livekit-server-sdk';
-import { ParticipantLoop, TrackLoop, useParticipants } from '@livekit/components-react';
+import {
+  type ParticipantInfo,
+  type TrackInfo,
+  type Room,
+  TrackSource,
+  type ParticipantPermission,
+} from 'livekit-server-sdk';
+import { useLocalParticipant, useParticipants } from '@livekit/components-react';
 import axios from 'axios';
 import { BiExit } from 'react-icons/bi';
-import { BsFillMicFill, BsFillMicMuteFill } from 'react-icons/bs';
+import { BsFillMicFill, BsFillMicMuteFill, BsCameraVideo, BsCameraVideoOff } from 'react-icons/bs';
+import { MdOutlineScreenShare, MdOutlineStopScreenShare } from 'react-icons/md';
+import { ImSpinner9 } from 'react-icons/im';
 import {
   LocalParticipant,
   LocalTrackPublication,
@@ -15,21 +23,18 @@ import {
 
 export default function RoomItem({ room }: { room: Room }) {
   const { user, chosenRoom, choosingRoom } = useMainContext();
-  // const [participants, setParticipants] = useState< (RemoteParticipant | LocalParticipant)[]>([]);
-  const [permission, setPermission] = useState<boolean>(false);
+  // get permission (room's creator) to allow, remove, mute participant
+  // toggle unsubscribers visible
   const [showUnsubscribers, setShowUnsubscribers] = useState<boolean>(false);
-  const participants = useParticipants().concat();
+  const [permission, setPermission] = useState<boolean>(false);
 
-  // useEffect(() => {
-  //   setParticipants(roomsParticipants.concat())
-  // }, [roomsParticipants])
+  // get current room's participants (room from layout context)
+  const participants = useParticipants().concat();
+  const { localParticipant } = useLocalParticipant();
+  console.log(participants);
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get<{ participants: (RemoteParticipant | LocalParticipant)[] }>(
-        `/api/participants?room=${room.name}`,
-      );
-      // setParticipants(data?.participants);
       const {
         data: { permission: myPermission },
       } = await axios.get(`api/room?room=${room.name}`);
@@ -37,15 +42,6 @@ export default function RoomItem({ room }: { room: Room }) {
     })();
   }, [room.name]);
 
-  const muteParticipant = (identity: string, tracks_id?: string, mute?: boolean) => {
-    if (!tracks_id) return;
-    axios.post(`/api/mute_participant`, {
-      room: room.name,
-      identity,
-      tracks_id,
-      mute,
-    });
-  };
   const removeParticipant = (identity: string) => {
     axios.delete(`/api/participants`, { data: { room: room.name, username: identity } });
   };
@@ -56,7 +52,26 @@ export default function RoomItem({ room }: { room: Room }) {
       metadata: null,
       permissions: {
         canSubscribe: true,
+        canPublish: true,
       },
+    });
+  };
+
+  const muteParticipant = (identity: string, tracks_id?: string, mute?: boolean) => {
+    if (!tracks_id) return;
+    axios.post(`/api/mute_participant`, {
+      room: room.name,
+      identity,
+      tracks_id,
+      mute,
+    });
+  };
+  const unSubscribeTrack = async (identity: string, trackSids: string[], subscribe: boolean) => {
+    await axios.put('/api/track_subscription', {
+      room: room.name,
+      identity,
+      trackSids,
+      subscribe,
     });
   };
 
@@ -84,76 +99,119 @@ export default function RoomItem({ room }: { room: Room }) {
       </span>
       {room.name === chosenRoom && (
         <>
-          <ul>
-            {subcribers.map(({ sid, identity, tracks }) => {
-              const myTracks: (RemoteTrackPublication | LocalTrackPublication)[] = [];
-              tracks.forEach((item) => myTracks.push(item));
-
-              return (
-                <li key={sid} className="flex flex-row items-center gap-2 px-4 my-1">
-                  {user.username === identity || permission ? (
-                    <>
-                      <span className="flex-1 text-start">{identity}</span>
-                      {myTracks.length === 0 && <BsFillMicMuteFill />}
-                      {myTracks.map(
-                        ({ trackInfo }) =>
-                          trackInfo && (
-                            <div
-                              key={trackInfo.sid}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                muteParticipant(identity, trackInfo.sid, !trackInfo.muted);
-                              }}
-                            >
-                              <TrackItem track={trackInfo} />
-                            </div>
-                          ),
-                      )}
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeParticipant(identity);
-                        }}
-                      >
-                        <BiExit />
-                      </div>
-                    </>
-                  ) : (
-                    <span className="flex-1 text-start">{identity}</span>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-          <button className="w-[90%] mb-3 rounded-md border border-black">
-            <h1 onClick={() => setShowUnsubscribers((prev) => !prev)}>
-              Unsubcribers ({unsubcribers.length})
-            </h1>
-            {/* <ParticipantLoop participants={roomsParticipants}></ParticipantLoop> */}
-            <ul className="px-2">
-              {showUnsubscribers &&
-                unsubcribers.map(({ sid, identity }) => (
-                  <li key={sid} className="flex">
-                    <span className="flex-1 text-left text-ellipsis overflow-hidden">
-                      {identity}
-                    </span>
-                    <button onClick={() => allowToSubscribe(identity)}>✔</button>
-                    <button onClick={() => removeParticipant(identity)}>❌</button>
-                  </li>
-                ))}
-            </ul>
-          </button>
+          <Subscribers
+            subcribers={subcribers}
+            permission={permission}
+            room={room}
+            muteParticipant={muteParticipant}
+            removeParticipant={removeParticipant}
+          />
+          {permission && (
+            <button className="w-[90%] mb-3 rounded-md border border-black">
+              <h1 onClick={() => setShowUnsubscribers((prev) => !prev)}>
+                Request list ({unsubcribers.length})
+              </h1>
+              {/* <ParticipantLoop participants={roomsParticipants}></ParticipantLoop> */}
+              <ul className="px-2">
+                {showUnsubscribers &&
+                  unsubcribers.map(({ sid, identity }) => (
+                    <li key={sid} className="flex">
+                      <span className="flex-1 text-left text-ellipsis overflow-hidden">
+                        {identity}
+                      </span>
+                      <button onClick={() => allowToSubscribe(identity)}>✔</button>
+                      <button onClick={() => removeParticipant(identity)}>❌</button>
+                    </li>
+                  ))}
+              </ul>
+            </button>
+          )}
+          {localParticipant.permissions?.canSubscribe || (
+            <span className="text-xs">
+              Room&#39;s admin are deciding <ImSpinner9 className="animate-spin inline" />
+            </span>
+          )}
         </>
       )}
     </div>
   );
 }
 
+function Subscribers({
+  subcribers,
+  permission,
+  room,
+  removeParticipant,
+  muteParticipant,
+}: {
+  subcribers: (RemoteParticipant | LocalParticipant)[];
+  permission: boolean;
+  room: Room;
+  removeParticipant: (identity: string) => void;
+  muteParticipant: (identity: string, tracks_id?: string, mute?: boolean) => void;
+}) {
+  const { user } = useMainContext();
+
+  return (
+    <ul>
+      {subcribers.map(({ sid, identity, tracks }) => {
+        const myTracks: (RemoteTrackPublication | LocalTrackPublication)[] = [];
+        tracks.forEach((item) => myTracks.push(item));
+
+        return (
+          <li key={sid} className="flex flex-row items-center gap-2 px-4 my-1">
+            {user.username === identity || permission ? (
+              <>
+                <span className="flex-1 text-start">{identity}</span>
+                {myTracks.length === 0 && <BsFillMicMuteFill />}
+                {myTracks.map(
+                  ({ trackInfo }) =>
+                    trackInfo && (
+                      <div
+                        key={trackInfo.sid}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (trackInfo.muted) return;
+                          muteParticipant(identity, trackInfo.sid, true);
+                        }}
+                      >
+                        <TrackItem track={trackInfo} />
+                      </div>
+                    ),
+                )}
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeParticipant(identity);
+                  }}
+                >
+                  <BiExit />
+                </div>
+              </>
+            ) : (
+              <span className="flex-1 text-start">{identity}</span>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 function TrackItem({ track }: { track: TrackInfo }) {
+  // UNKNOWN = 0,
+  // CAMERA = 1,
+  // MICROPHONE = 2,
+  // SCREEN_SHARE = 3,
+  // SCREEN_SHARE_AUDIO = 4,
+  // UNRECOGNIZED = -1
   switch (track.source) {
     case 1: // microphone audio
-      // case 4: // (screen-share audio)
+      return track.muted ? <BsCameraVideoOff /> : <BsCameraVideo />;
+    case 2:
       return track.muted ? <BsFillMicMuteFill /> : <BsFillMicFill />;
+    case 3:
+      return track.muted ? <MdOutlineStopScreenShare /> : <MdOutlineScreenShare />;
     default:
       return <BsFillMicMuteFill />;
   }

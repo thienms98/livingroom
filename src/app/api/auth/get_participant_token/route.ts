@@ -31,8 +31,9 @@ export async function GET(req: NextRequest) {
   const mRoom = await prisma.room.findUnique({where: {roomName:room}});
 
   const at = new AccessToken(apiKey, apiSecret, { identity: username });
+  const permission =  mRoom?.creator === username
 
-  at.addGrant({ room, roomJoin: true, canPublish: true, canSubscribe: mRoom?.creator === username , canPublishSources: [TrackSource.MICROPHONE, TrackSource.CAMERA, TrackSource.SCREEN_SHARE, TrackSource.SCREEN_SHARE_AUDIO] });
+  at.addGrant({ room, roomJoin: true, canPublish: permission, canSubscribe: permission , canPublishSources: [TrackSource.MICROPHONE, TrackSource.CAMERA, TrackSource.SCREEN_SHARE, TrackSource.SCREEN_SHARE_AUDIO] });
 
   return NextResponse.json({ token: at.toJwt() });
 }

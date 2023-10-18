@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useMainContext } from './MainContext';
 import { DisconnectButton, TrackToggle } from '@livekit/components-react';
 import { Track } from 'livekit-client';
@@ -30,4 +30,4 @@ const Account = () => {
   );
 };
 
-export default Account;
+export default memo(Account);

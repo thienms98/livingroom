@@ -2,7 +2,6 @@ import { isEqualTrackRef } from '@livekit/components-core';
 import {
   CarouselLayout,
   ConnectionStateToast,
-  ControlBar,
   FocusLayout,
   FocusLayoutContainer,
   GridLayout,
@@ -21,9 +20,9 @@ const CustomVideoConference = () => {
 
   const layoutContext = useCreateLayoutContext();
   const [focusTrack] = usePinnedTracks(layoutContext);
-  console.log(usePinnedTracks(layoutContext));
 
-  const carouselTracks = tracks.filter((track) => !isEqualTrackRef(track, focusTrack));
+  const subscribedTracks = tracks.filter((track) => track.participant.permissions?.canSubscribe);
+  const carouselTracks = subscribedTracks.filter((track) => !isEqualTrackRef(track, focusTrack));
 
   return (
     <div className="h-full">
@@ -35,7 +34,7 @@ const CustomVideoConference = () => {
           <FocusLayout trackRef={focusTrack} />
         </FocusLayoutContainer>
       ) : (
-        <GridLayout tracks={tracks} className="max-h-full">
+        <GridLayout tracks={tracks} className="max-h-[100vh!important]">
           <ParticipantTile />
         </GridLayout>
       )}

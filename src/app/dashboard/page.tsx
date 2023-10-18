@@ -18,25 +18,11 @@ import Account from '@/components/Account';
 const Page = () => {
   const { user, chosenRoom, choosingRoom } = useMainContext();
   const [token, setToken] = useState<string>(chosenRoom || '');
-  const latestRoom = useRef<string>('');
 
   useEffect(() => {
     if (!chosenRoom) return;
     (async () => {
       try {
-        // const confirmed =
-        //   !!latestRoom &&
-        //   (await modal.confirm({
-        //     title: 'Do you want to leave?',
-        //     onCancel: () => {
-        //       choosingRoom(latestRoom.current);
-        //     },
-        //   }));
-        // if (!confirmed) return;
-        if (latestRoom.current)
-          await axios.delete(`/api/participants`, {
-            data: { room: latestRoom.current, username: user.username },
-          });
         const { data } = await axios(
           `/api/auth/get_participant_token?room=${chosenRoom}&username=${user.username}`,
         );
@@ -44,7 +30,6 @@ const Page = () => {
       } catch (e) {
         console.error(e);
       }
-      latestRoom.current = chosenRoom;
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -71,8 +56,13 @@ const Page = () => {
         // connectOptions={{ autoSubscribe: false }}
         data-lk-theme="default"
         style={{ height: '100dvh' }}
-        key={latestRoom.current}
-        onDisconnected={() => choosingRoom('')}
+        key={token}
+        onDisconnected={async () => {
+          await axios.delete(`/api/participants`, {
+            data: { room: chosenRoom, username: user.username },
+          });
+          choosingRoom('');
+        }}
       >
         <LayoutContextProvider>
           <div className="grid grid-cols-[200px_auto] h-full">
@@ -82,13 +72,9 @@ const Page = () => {
             </div>
             <div>
               {/* Your custom component with basic video conferencing functionality. */}
-              {/* <VideoConference /> */}
               <CustomVideoConference />
               {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
               <RoomAudioRenderer />
-              {/* Controls for the user to start/stop audio, video, and screen 
-        share tracks and to leave the room. */}
-              {/* <ControlBar /> */}
             </div>
           </div>
         </LayoutContextProvider>
