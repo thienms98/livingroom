@@ -31,7 +31,6 @@ export default function RoomItem({ room }: { room: Room }) {
   // get current room's participants (room from layout context)
   const participants = useParticipants().concat();
   const { localParticipant } = useLocalParticipant();
-  console.log(participants);
 
   useEffect(() => {
     (async () => {

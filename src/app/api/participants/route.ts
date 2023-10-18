@@ -20,10 +20,14 @@ export async function PUT(req:NextRequest){
 }
 
 export async function DELETE(req:NextRequest){
-  const { room, username } = await req.json()
+  const { room, username }: {room: string, username: string} = await req.json()
 
   try{
-    roomService.removeParticipant(room, username)
+    await roomService.removeParticipant(room, username)
+    await prisma.participants.deleteMany({where: {
+      username,
+      roomName: room,
+    }})
     return NextResponse.json({msg: 'ok'})
   }catch(err){
     return NextResponse.json({msg: 'fail'})

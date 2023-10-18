@@ -7,11 +7,7 @@ import RoomItem from './Room';
 import { ImSpinner2 } from 'react-icons/im';
 import { Room } from 'livekit-server-sdk';
 import Modal from 'react-modal';
-
-// import { io } from 'socket.io-client';
-
-// console.log(process.env.NEXT_PUBLIC_SOCKET_SERVER);
-// const socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER || '', {});
+import supabase from '@/lib/supabase';
 
 const Rooms = () => {
   const { chosenRoom } = useMainContext();
@@ -21,6 +17,23 @@ const Rooms = () => {
 
   useEffect(() => {
     (async () => await getRooms())();
+
+    // Listen to changes from db
+    supabase
+      ?.channel('room')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'room',
+        },
+        async (payload) => {
+          console.log('listened ', payload);
+          await getRooms();
+        },
+      )
+      .subscribe();
   }, []);
 
   const getRooms = async () => {
@@ -29,7 +42,7 @@ const Rooms = () => {
   };
   const createRoom = async (e: React.FormEvent) => {
     e.preventDefault();
-    const room = await axios.post('/api/rooms', { room: newRoom });
+    await axios.post('/api/rooms', { room: newRoom });
     getRooms();
     setNewRoom('');
     setModal(false);

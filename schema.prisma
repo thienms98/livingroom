@@ -16,15 +16,33 @@ model Profile {
 }
 
 model Account {
-  username String   @id
-  password String
-  User     Profile? @relation(fields: [username], references: [username])
-  Room     Room[]
+  username    String         @id
+  password    String
+  User        Profile?       @relation(fields: [username], references: [username])
+  Room        Room[]
+  Participant Participants[]
 }
 
 model Room {
-  roomId   String   @id
-  roomName String   @unique
-  creator  String
-  Account  Account? @relation(fields: [creator], references: [username])
+  sid             String         @id
+  name            String         @unique
+  emptyTimeout    Int
+  maxParticipants Int
+  creationTime    DateTime
+  turnPassword    String
+  metadata        String
+  numParticipants Int
+  numPublishers   Int
+  activeRecording Boolean
+  creator         String
+  Account         Account?       @relation(fields: [creator], references: [username])
+  Participant     Participants[]
+}
+
+model Participants {
+  id          Int     @id @default(autoincrement())
+  roomName    String
+  username    String
+  room        Room    @relation(fields: [roomName], references: [name])
+  participant Account @relation(fields: [username], references: [username])
 }

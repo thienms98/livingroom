@@ -5,7 +5,6 @@ import {
   LiveKitRoom,
   VideoConference,
   RoomAudioRenderer,
-  RoomName,
   LayoutContextProvider,
 } from '@livekit/components-react';
 import { useEffect, useRef, useState } from 'react';
@@ -14,10 +13,12 @@ import axios from 'axios';
 import { VideoPreset, VideoPresets } from 'livekit-client';
 import CustomVideoConference from '@/components/CustomVideoConference';
 import Account from '@/components/Account';
+import type { PinState } from '@livekit/components-core';
 
 const Page = () => {
   const { user, chosenRoom, choosingRoom } = useMainContext();
   const [token, setToken] = useState<string>(chosenRoom || '');
+  const [focusTrack, setFocusTrack] = useState<PinState>([]);
 
   useEffect(() => {
     if (!chosenRoom) return;
@@ -64,7 +65,7 @@ const Page = () => {
           choosingRoom('');
         }}
       >
-        <LayoutContextProvider>
+        <LayoutContextProvider onPinChange={(state) => setFocusTrack(state)}>
           <div className="grid grid-cols-[200px_auto] h-full">
             <div className="grid grid-rows-[auto_100px] p-2 pr-0 gap-2">
               <Rooms />
@@ -72,7 +73,7 @@ const Page = () => {
             </div>
             <div>
               {/* Your custom component with basic video conferencing functionality. */}
-              <CustomVideoConference />
+              <CustomVideoConference focusTrack={focusTrack[0]} />
               {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
               <RoomAudioRenderer />
             </div>

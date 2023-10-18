@@ -10,7 +10,7 @@ export async function GET(req:NextRequest){
 
   const room = req.nextUrl.searchParams.get('room')
   if(!room) return NextResponse.json({msg: 'room name is required'})
-  const data = await prisma.room.findUnique({where: {roomName: room}})
+  const data = await prisma.room.findUnique({where: {name: room}})
 
   const permission = username === data?.creator
 
