@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { roomService } from "../rooms/route";
+import prisma from "@/lib/prisma";
 
 export async function GET(req:NextRequest){
   const room = req.nextUrl.searchParams.get('room');
@@ -10,7 +11,13 @@ export async function GET(req:NextRequest){
 }
 
 export async function POST(){}
-export async function PUT(){}
+export async function PUT(req:NextRequest){
+  const {room, identity, metadata, permissions} = await req.json()
+
+  await roomService.updateParticipant(room, identity, metadata, permissions )
+  
+  return NextResponse.json({msg: 'ok'})
+}
 
 export async function DELETE(req:NextRequest){
   const { room, username } = await req.json()

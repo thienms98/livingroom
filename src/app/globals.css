@@ -25,3 +25,7 @@ body {
 input[warn='true'] {
   border: 1px solid rgb(244, 47, 47);
 }
+
+.lk-participant-media-video {
+  object-fit: contain !important;
+}

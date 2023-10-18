@@ -4,40 +4,35 @@ import Rooms from '@/components/Rooms';
 import {
   LiveKitRoom,
   VideoConference,
-  GridLayout,
-  ParticipantTile,
   RoomAudioRenderer,
-  ControlBar,
   RoomName,
   LayoutContextProvider,
 } from '@livekit/components-react';
 import { useEffect, useRef, useState } from 'react';
 import { useMainContext } from '@/components/MainContext';
 import axios from 'axios';
-import { Modal } from 'antd';
 import { VideoPreset, VideoPresets } from 'livekit-client';
 import CustomVideoConference from '@/components/CustomVideoConference';
-const { useModal } = Modal;
+import Account from '@/components/Account';
 
 const Page = () => {
   const { user, chosenRoom, choosingRoom } = useMainContext();
   const [token, setToken] = useState<string>(chosenRoom || '');
   const latestRoom = useRef<string>('');
-  const [modal, contextHolder] = useModal();
 
   useEffect(() => {
     if (!chosenRoom) return;
     (async () => {
       try {
-        const confirmed =
-          !!latestRoom &&
-          (await modal.confirm({
-            title: 'Do you want to leave?',
-            onCancel: () => {
-              choosingRoom(latestRoom.current);
-            },
-          }));
-        if (!confirmed) return;
+        // const confirmed =
+        //   !!latestRoom &&
+        //   (await modal.confirm({
+        //     title: 'Do you want to leave?',
+        //     onCancel: () => {
+        //       choosingRoom(latestRoom.current);
+        //     },
+        //   }));
+        // if (!confirmed) return;
         if (latestRoom.current)
           await axios.delete(`/api/participants`, {
             data: { room: latestRoom.current, username: user.username },
@@ -56,7 +51,7 @@ const Page = () => {
   }, [chosenRoom]);
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden relative">
+    <div className="h-screen max-h-screen overflow-hidden">
       <LiveKitRoom
         token={token}
         serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
@@ -81,9 +76,11 @@ const Page = () => {
       >
         <LayoutContextProvider>
           <div className="grid grid-cols-[200px_auto] h-full">
-            <Rooms />
+            <div className="grid grid-rows-[auto_100px] p-2 pr-0 gap-2">
+              <Rooms />
+              <Account />
+            </div>
             <div>
-              <RoomName className="absolute top-2 left-[204px] z-50" />
               {/* Your custom component with basic video conferencing functionality. */}
               {/* <VideoConference /> */}
               <CustomVideoConference />
@@ -96,7 +93,6 @@ const Page = () => {
           </div>
         </LayoutContextProvider>
       </LiveKitRoom>
-      {contextHolder}
     </div>
   );
 };
