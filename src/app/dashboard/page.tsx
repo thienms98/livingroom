@@ -38,7 +38,7 @@ const Page = () => {
             data: { room: latestRoom.current, username: user.username },
           });
         const { data } = await axios(
-          `/api/auth/get-participant-token?room=${chosenRoom}&username=${user.username}`,
+          `/api/auth/get_participant_token?room=${chosenRoom}&username=${user.username}`,
         );
         setToken(data.token);
       } catch (e) {

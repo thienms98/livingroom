@@ -39,7 +39,7 @@ export default function RoomItem({ room }: { room: Room }) {
 
   const muteParticipant = (identity: string, tracks_id?: string, mute?: boolean) => {
     if (!tracks_id) return;
-    axios.post(`/api/mute-participant`, {
+    axios.post(`/api/mute_participant`, {
       room: room.name,
       identity,
       tracks_id,
