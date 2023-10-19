@@ -38,12 +38,6 @@ export async function GET(req: NextRequest) {
   
   const permission =  mRoom?.creator === username
 
-  if(permission) await prisma.room.update({
-    where: {name: room},
-    data: {
-      numParticipants: {increment: 1}
-    }
-  })
   at.addGrant({ room, roomJoin: true, canPublish: permission, canSubscribe: permission , canPublishSources: [TrackSource.MICROPHONE, TrackSource.CAMERA, TrackSource.SCREEN_SHARE, TrackSource.SCREEN_SHARE_AUDIO] });
 
   return NextResponse.json({ token: at.toJwt() });

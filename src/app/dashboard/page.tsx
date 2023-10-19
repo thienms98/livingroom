@@ -16,6 +16,7 @@ import Account from '@/components/Account';
 import type { PinState } from '@livekit/components-core';
 import { AiOutlineMenu } from 'react-icons/ai';
 import Drawer from '@/components/Drawer';
+import prisma from '@/lib/prisma';
 
 const Page = () => {
   const { user, chosenRoom, choosingRoom } = useMainContext();
@@ -61,13 +62,19 @@ const Page = () => {
         data-lk-theme="default"
         style={{ height: '100dvh' }}
         key={token}
+        onConnected={async () => {
+          if (chosenRoom) await axios.post('api/room-participants-amount', { room: chosenRoom });
+        }}
         onDisconnected={async () => {
+          if (!chosenRoom) return;
           const temp = chosenRoom || '';
-          choosingRoom('');
           const { data } = await axios.delete(`/api/participants`, {
             data: { room: chosenRoom, username: user.username },
           });
-          if (!data.success) choosingRoom(temp);
+          choosingRoom('');
+
+          await axios.delete('api/room-participants-amount', { data: { room: temp } });
+          // if (data && !data.success) choosingRoom(temp);
         }}
       >
         <LayoutContextProvider onPinChange={(state) => setFocusTrack(state)}>
