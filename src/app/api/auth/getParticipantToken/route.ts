@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { AccessToken, TrackSource } from "livekit-server-sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { roomService } from "../../rooms/route";
 
 export async function GET(req: NextRequest) {
   const room = req.nextUrl.searchParams.get("room");
@@ -30,17 +31,19 @@ export async function GET(req: NextRequest) {
 
   // get room data.
   const mRoom = await prisma.room.findUnique({where: {name:room}});
+  if(!mRoom) return NextResponse.json({msg: 'room not found'})
   // increase room num participants when user join to room
-  await prisma.room.update({
+
+  const at = new AccessToken(apiKey, apiSecret, { identity: username });
+  
+  const permission =  mRoom?.creator === username
+
+  if(permission) await prisma.room.update({
     where: {name: room},
     data: {
       numParticipants: {increment: 1}
     }
   })
-
-  const at = new AccessToken(apiKey, apiSecret, { identity: username });
-  const permission =  mRoom?.creator === username
-
   at.addGrant({ room, roomJoin: true, canPublish: permission, canSubscribe: permission , canPublishSources: [TrackSource.MICROPHONE, TrackSource.CAMERA, TrackSource.SCREEN_SHARE, TrackSource.SCREEN_SHARE_AUDIO] });
 
   return NextResponse.json({ token: at.toJwt() });

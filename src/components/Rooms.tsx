@@ -8,7 +8,6 @@ import { ImSpinner2 } from 'react-icons/im';
 import { Room } from 'livekit-server-sdk';
 import Modal from 'react-modal';
 import supabase from '@/lib/supabase';
-import Drawer from './Drawer';
 
 const Rooms = () => {
   const { chosenRoom } = useMainContext();
@@ -55,7 +54,6 @@ const Rooms = () => {
 
   return (
     <div className="bg-[#1e1e1e] rounded-lg overflow-hidden">
-      <Drawer />
       <div
         className="w-auto rounded-2xl py-1 bg-green-400 hover:bg-green-600 overflow-hidden cursor-pointer text-center mx-3 box-border mt-2"
         onClick={() => setModal(true)}
@@ -78,13 +76,14 @@ const Rooms = () => {
         style={{
           content: {
             width: '50%',
-            maxWidth: '300px',
+            maxWidth: '500px',
             height: 'auto',
             maxHeight: '170px',
             margin: 'auto auto',
             overflow: 'hidden',
+            zIndex: 100,
           },
-          overlay: { backgroundColor: '#1e1e1e1e' },
+          overlay: { backgroundColor: '#1e1e1e1e', zIndex: 100 },
         }}
       >
         <form onSubmit={createRoom} className="m-3">

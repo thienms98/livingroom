@@ -14,11 +14,14 @@ import { VideoPreset, VideoPresets } from 'livekit-client';
 import CustomVideoConference from '@/components/CustomVideoConference';
 import Account from '@/components/Account';
 import type { PinState } from '@livekit/components-core';
+import { AiOutlineMenu } from 'react-icons/ai';
+import Drawer from '@/components/Drawer';
 
 const Page = () => {
   const { user, chosenRoom, choosingRoom } = useMainContext();
   const [token, setToken] = useState<string>(chosenRoom || '');
   const [focusTrack, setFocusTrack] = useState<PinState>([]);
+  const [showDrawer, setShowDrawer] = useState<boolean>(false);
 
   useEffect(() => {
     if (!chosenRoom) return;
@@ -66,10 +69,18 @@ const Page = () => {
         }}
       >
         <LayoutContextProvider onPinChange={(state) => setFocusTrack(state)}>
-          <div className="grid grid-cols-[200px_auto] h-full">
-            <div className="grid grid-rows-[auto_100px] p-2 pr-0 gap-2">
+          <div className="grid grid-cols-1 grid-rows-[50px_auto] sm:grid-rows-1 sm:grid-cols-[200px_auto] h-full">
+            <div className="hidden sm:grid grid-rows-[auto_100px] p-2 pr-0 gap-2">
               <Rooms />
               <Account />
+            </div>
+            <div className="block sm:hidden rounded-md bg-[#1e1e1e] m-1 p-1">
+              <div
+                className="w-[34px] h-[34px] rounded-full overflow-hidden bg-[#3e3e3e] hover:bg-[#5e5e5e] text-white relative cursor-pointer"
+                onClick={() => setShowDrawer((prev) => !prev)}
+              >
+                <AiOutlineMenu className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" />
+              </div>
             </div>
             <div>
               {/* Your custom component with basic video conferencing functionality. */}
@@ -77,6 +88,14 @@ const Page = () => {
               {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
               <RoomAudioRenderer />
             </div>
+            <Drawer
+              visible={showDrawer}
+              className="sm:hidden grid grid-rows-[auto_150px] gap-2 px-2 pb-2"
+              onClose={() => setShowDrawer((prev) => !prev)}
+            >
+              <Rooms />
+              <Account />
+            </Drawer>
           </div>
         </LayoutContextProvider>
       </LiveKitRoom>

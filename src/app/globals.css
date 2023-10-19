@@ -29,3 +29,11 @@ input[warn='true'] {
 .lk-participant-media-video {
   object-fit: contain !important;
 }
+
+@media (max-width: 500px) {
+  .ReactModal__Content {
+    width: 100% !important;
+    margin: auto 0 !important;
+    inset: 0 !important;
+  }
+}
