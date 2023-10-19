@@ -8,6 +8,7 @@ import { ImSpinner2 } from 'react-icons/im';
 import { Room } from 'livekit-server-sdk';
 import Modal from 'react-modal';
 import supabase from '@/lib/supabase';
+import Drawer from './Drawer';
 
 const Rooms = () => {
   const { chosenRoom } = useMainContext();
@@ -19,21 +20,25 @@ const Rooms = () => {
     (async () => await getRooms())();
 
     // Listen to changes from db
-    supabase
-      ?.channel('room')
+    if (!supabase) return;
+    const channel = supabase
+      .channel('schema-db-changes')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'room',
         },
         async (payload) => {
-          console.log('listened ', payload);
+          console.log(payload);
           await getRooms();
         },
       )
       .subscribe();
+
+    return () => {
+      supabase && supabase.removeChannel(channel);
+    };
   }, []);
 
   const getRooms = async () => {
@@ -50,6 +55,7 @@ const Rooms = () => {
 
   return (
     <div className="bg-[#1e1e1e] rounded-lg overflow-hidden">
+      <Drawer />
       <div
         className="w-auto rounded-2xl py-1 bg-green-400 hover:bg-green-600 overflow-hidden cursor-pointer text-center mx-3 box-border mt-2"
         onClick={() => setModal(true)}

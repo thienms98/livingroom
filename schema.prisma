@@ -1,10 +1,10 @@
-datasource db {
-  url      = "postgresql://postgres:zxqcttr9889@db.agnwghbxhdxgugdsrqiz.supabase.co:5432/postgres"
-  provider = "postgresql"
-}
-
 generator client {
   provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:zxqcttr9889@db.agnwghbxhdxgugdsrqiz.supabase.co:5432/postgres"
 }
 
 model Profile {
@@ -16,16 +16,15 @@ model Profile {
 }
 
 model Account {
-  username    String         @id
-  password    String
-  User        Profile?       @relation(fields: [username], references: [username])
-  Room        Room[]
-  Participant Participants[]
+  username String  @id
+  password String
+  User     Profile @relation(fields: [username], references: [username])
+  Room     Room[]
 }
 
 model Room {
-  sid             String         @id
-  name            String         @unique
+  sid             String   @id
+  name            String   @unique
   emptyTimeout    Int
   maxParticipants Int
   creationTime    DateTime
@@ -35,14 +34,5 @@ model Room {
   numPublishers   Int
   activeRecording Boolean
   creator         String
-  Account         Account?       @relation(fields: [creator], references: [username])
-  Participant     Participants[]
-}
-
-model Participants {
-  id          Int     @id @default(autoincrement())
-  roomName    String
-  username    String
-  room        Room    @relation(fields: [roomName], references: [name])
-  participant Account @relation(fields: [username], references: [username])
+  Account         Account  @relation(fields: [creator], references: [username])
 }
