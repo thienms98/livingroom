@@ -62,10 +62,12 @@ const Page = () => {
         style={{ height: '100dvh' }}
         key={token}
         onDisconnected={async () => {
-          await axios.delete(`/api/participants`, {
+          const temp = chosenRoom || '';
+          choosingRoom('');
+          const { data } = await axios.delete(`/api/participants`, {
             data: { room: chosenRoom, username: user.username },
           });
-          choosingRoom('');
+          if (!data.success) choosingRoom(temp);
         }}
       >
         <LayoutContextProvider onPinChange={(state) => setFocusTrack(state)}>

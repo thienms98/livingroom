@@ -15,6 +15,9 @@ export async function PUT(req:NextRequest){
   const {room, identity, metadata, permissions} = await req.json()
 
   await roomService.updateParticipant(room, identity, metadata, permissions )
+  if(permissions.canSubscribe){
+    await prisma.room.update({where: {name: room}, data: {numParticipants: {increment: 1}}})
+  }
   
   return NextResponse.json({msg: 'ok'})
 }
@@ -30,8 +33,10 @@ export async function DELETE(req:NextRequest){
       data: {numParticipants: {decrement: 1}}
     })
   
-    return NextResponse.json({msg: 'ok'})
+    return NextResponse.json({succes: true, msg: 'ok'})
   }catch(err){
-    return NextResponse.json({msg: 'fail'})
+    console.log(err);
+    
+    return NextResponse.json({succes: false, msg: 'fail'})
   }
 }

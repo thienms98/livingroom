@@ -29,7 +29,7 @@ const Rooms = () => {
           schema: 'public',
         },
         async (payload) => {
-          console.log(payload);
+          // console.log(payload);
           await getRooms();
         },
       )
