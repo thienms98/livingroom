@@ -28,11 +28,15 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  // get room data.
   const mRoom = await prisma.room.findUnique({where: {name:room}});
-  // await prisma.participants.create({data: {
-  //   participant: {connect: {username}},
-  //   room: {connect: {name: room}}
-  // }})
+  // increase room num participants when user join to room
+  await prisma.room.update({
+    where: {name: room},
+    data: {
+      numParticipants: {increment: 1}
+    }
+  })
 
   const at = new AccessToken(apiKey, apiSecret, { identity: username });
   const permission =  mRoom?.creator === username

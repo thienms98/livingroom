@@ -27,6 +27,7 @@ export default function RoomItem({ room }: { room: Room }) {
   // toggle unsubscribers visible
   const [showUnsubscribers, setShowUnsubscribers] = useState<boolean>(false);
   const [permission, setPermission] = useState<boolean>(false);
+  // console.log(room);
 
   // get current room's participants (room from layout context)
   const participants = useParticipants().concat();
@@ -93,7 +94,7 @@ export default function RoomItem({ room }: { room: Room }) {
           {room.name}
         </span>
         <span>
-          {participants.length} / {room.maxParticipants}
+          {room.numParticipants} / {room.maxParticipants}
         </span>
       </span>
       {room.name === chosenRoom && (

@@ -24,10 +24,12 @@ export async function DELETE(req:NextRequest){
 
   try{
     await roomService.removeParticipant(room, username)
-    await prisma.participants.deleteMany({where: {
-      username,
-      roomName: room,
-    }})
+    // decrease num of participants by 1
+    await prisma.room.update({
+      where: {name: room},
+      data: {numParticipants: {decrement: 1}}
+    })
+  
     return NextResponse.json({msg: 'ok'})
   }catch(err){
     return NextResponse.json({msg: 'fail'})

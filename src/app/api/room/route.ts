@@ -16,3 +16,22 @@ export async function GET(req:NextRequest){
 
   return NextResponse.json({...data, permission})
 }
+
+export async function PUT(req:NextRequest){
+  const {room, data} = await req.json();
+  if(!room) return NextResponse.json({msg: 'room name is required'})
+
+  const roomInfo = await prisma.room.findUnique({where: {name: room}})
+
+  if(!roomInfo) return NextResponse.json({msg: 'room not found'})
+  await prisma.room.update({
+    where: {
+      name: room
+    },
+    data: {
+      ...data
+    }
+  })
+
+  return NextResponse.json({msg: 'ok'})
+}
