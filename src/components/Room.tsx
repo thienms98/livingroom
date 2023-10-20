@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMainContext } from './MainContext';
 import {
   type ParticipantInfo,
@@ -27,6 +27,7 @@ export default function RoomItem({ room }: { room: Room }) {
   // toggle unsubscribers visible
   const [showUnsubscribers, setShowUnsubscribers] = useState<boolean>(false);
   const [permission, setPermission] = useState<boolean>(false);
+  const [roomAmount, setRoomAmount] = useState<number>(0);
   // console.log(room);
 
   // get current room's participants (room from layout context)
@@ -42,11 +43,23 @@ export default function RoomItem({ room }: { room: Room }) {
     })();
   }, [room.name]);
 
-  const removeParticipant = (identity: string) => {
-    axios.delete(`/api/participants`, { data: { room: room.name, username: identity } });
+  const updateParticipantAmount = useCallback(async () => {
+    if (room.name) {
+      const { data } = await axios.get(`/api/room-participants-amount?room=${room.name}`);
+      setRoomAmount(data.amount);
+    }
+  }, [room.name]);
+
+  useEffect(() => {
+    (async () => await updateParticipantAmount())();
+  }, [updateParticipantAmount]);
+
+  const removeParticipant = async (identity: string) => {
+    await axios.delete(`/api/participants`, { data: { room: room.name, username: identity } });
+    await updateParticipantAmount();
   };
-  const allowToSubscribe = (identity: string) => {
-    axios.put(`/api/participants`, {
+  const allowToSubscribe = async (identity: string) => {
+    await axios.put(`/api/participants`, {
       room: room.name,
       identity,
       metadata: null,
@@ -55,6 +68,7 @@ export default function RoomItem({ room }: { room: Room }) {
         canPublish: true,
       },
     });
+    await updateParticipantAmount();
   };
 
   const muteParticipant = (identity: string, tracks_id?: string, mute?: boolean) => {
@@ -94,7 +108,7 @@ export default function RoomItem({ room }: { room: Room }) {
           {room.name}
         </span>
         <span>
-          {room.numParticipants} / {room.maxParticipants}
+          {roomAmount} / {room.maxParticipants}
         </span>
       </span>
       {room.name === chosenRoom && (

@@ -62,9 +62,6 @@ const Page = () => {
         data-lk-theme="default"
         style={{ height: '100dvh' }}
         key={token}
-        onConnected={async () => {
-          if (chosenRoom) await axios.post('api/room-participants-amount', { room: chosenRoom });
-        }}
         onDisconnected={async () => {
           if (!chosenRoom) return;
           const temp = chosenRoom || '';
@@ -73,8 +70,7 @@ const Page = () => {
           });
           choosingRoom('');
 
-          await axios.delete('api/room-participants-amount', { data: { room: temp } });
-          // if (data && !data.success) choosingRoom(temp);
+          if (data && !data.success) choosingRoom(temp);
         }}
       >
         <LayoutContextProvider onPinChange={(state) => setFocusTrack(state)}>

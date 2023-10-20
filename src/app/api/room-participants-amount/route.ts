@@ -1,31 +1,10 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { roomService } from "../rooms/route";
 
-export async function POST(req: NextRequest) {
-  const {room} = await req.json()
-  console.log(room);
-  
-  await prisma.room.update({
-    where: { name: room },
-    data: {
-      numParticipants: { increment: 1 },
-    },
-  });
+export async function GET(req: NextRequest) {
+  const room = req.nextUrl.searchParams.get('room') || ''
+  const amount = (await roomService.listParticipants(room)).length
 
-  return NextResponse.json({success: true})
-}
-
-export async function DELETE(req: NextRequest) {
-  const {room} = await req.json()
-  console.log(room);
-  
-  
-  await prisma.room.update({
-    where: { name: room },
-    data: {
-      numParticipants: { decrement: 1 },
-    },
-  });
-
-  return NextResponse.json({success: true})
+  return NextResponse.json({success: true, amount})
 }
