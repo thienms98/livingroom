@@ -62,13 +62,11 @@ const Page = () => {
     };
   }, []);
   const getOnlinesAmount = async () => {
-    const { data } = await axios.get('/api/online-users', {
-      headers: {
-        'Cache-Control': 'public, s-maxage=1',
-        'CDN-Cache-Control': 'public, s-maxage=60',
-        'Vercel-CDN-Cache-Control': 'public, s-maxage=0',
-      },
+    const res = await fetch('/api/online-users', {
+      cache: 'no-store',
     });
+    const data = await res.json();
+    // const { data } = await axios.get('/api/online-users');
     setOnlines(data as { valid: string[]; amount: number });
   };
   const getRooms = async () => {
