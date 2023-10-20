@@ -70,7 +70,7 @@ const Page = () => {
           });
           choosingRoom('');
 
-          if (data && !data.success) choosingRoom(temp);
+          // if (data && !data.success) choosingRoom(temp);
         }}
       >
         <LayoutContextProvider onPinChange={(state) => setFocusTrack(state)}>
