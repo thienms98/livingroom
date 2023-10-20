@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import jwt from "@/lib/jwt";
 
 export async function GET(req:NextRequest){
+  
   const token = cookies().get('token')?.value;
   const { username } = jwt.verify<{username: string}>(token || '') || {username: ''};
   if(!username) return NextResponse.json({},{status: 403});
@@ -11,6 +12,7 @@ export async function GET(req:NextRequest){
   const room = req.nextUrl.searchParams.get('room')
   if(!room) return NextResponse.json({msg: 'room name is required'})
   const data = await prisma.room.findUnique({where: {name: room}})
+  console.log('get room ', room);
 
   const permission = username === data?.creator
 

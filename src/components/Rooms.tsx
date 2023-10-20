@@ -2,21 +2,24 @@
 
 import axios from 'axios';
 import { memo, useEffect, useState } from 'react';
-import { useMainContext } from './MainContext';
 import RoomItem from './Room';
 import { ImSpinner2 } from 'react-icons/im';
+import { BiUser } from 'react-icons/bi';
 import { Room } from 'livekit-server-sdk';
 import Modal from 'react-modal';
 import supabase from '@/lib/supabase';
 
 const Rooms = () => {
-  const { chosenRoom } = useMainContext();
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [onlines, setOnlines] = useState<number>(0);
   const [newRoom, setNewRoom] = useState<string>('');
   const [modal, setModal] = useState<boolean>(false);
 
   useEffect(() => {
-    (async () => await getRooms())();
+    (async () => {
+      await getRooms();
+      await getOnlinesAmount();
+    })();
 
     // Listen to changes from db
     if (!supabase) return;
@@ -27,22 +30,31 @@ const Rooms = () => {
         {
           event: '*',
           schema: 'public',
+          // table: 'room',
         },
         async (payload) => {
-          console.log(payload);
-          await getRooms();
+          console.log(payload.table);
+          if (payload.table === 'Room') await getRooms();
+          if (payload.table === 'Account') await getOnlinesAmount();
         },
       )
-      .subscribe();
+      .subscribe((status) => console.log(status));
 
     return () => {
-      supabase && supabase.removeChannel(channel);
+      if (supabase) {
+        supabase.removeChannel(channel);
+        // supabase.removeChannel(onlinesWatcher);
+      }
     };
   }, []);
 
+  const getOnlinesAmount = async () => {
+    const { data } = await axios.get('/api/online-users');
+    setOnlines(data.amount as number);
+  };
   const getRooms = async () => {
     const { data } = await axios.get('/api/rooms');
-    setRooms(data || []);
+    setRooms((data as Room[]) || []);
   };
   const createRoom = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,8 +66,17 @@ const Rooms = () => {
 
   return (
     <div className="bg-[#1e1e1e] rounded-lg overflow-hidden">
+      <div className=" flex items-center justify-end mr-3">
+        <div className="w-5 relative">
+          <div className="absolute left-2 top-[calc(50%_-_4px)] w-2 h-2 bg-green-400 rounded-full overflow-hidden"></div>
+          <div className="absolute left-2 top-[calc(50%_-_4px)] bg-green-400 animate-ping w-2 h-2 rounded-full overflow-hidden"></div>
+        </div>
+        <span className="text-xs flex items-center gap-1">
+          <span>{onlines}</span> <BiUser />
+        </span>
+      </div>
       <div
-        className="w-auto rounded-2xl py-1 bg-green-400 hover:bg-green-600 overflow-hidden cursor-pointer text-center mx-3 box-border mt-2"
+        className="w-auto rounded-2xl py-1 bg-orange-700 hover:bg-orange-600 text-black overflow-hidden cursor-pointer text-center mx-3 box-border mt-2"
         onClick={() => setModal(true)}
       >
         + New room

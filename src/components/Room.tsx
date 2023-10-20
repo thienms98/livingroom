@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMainContext } from './MainContext';
 import {
   type ParticipantInfo,
@@ -20,8 +20,9 @@ import {
   RemoteParticipant,
   RemoteTrackPublication,
 } from 'livekit-client';
+import supabase from '@/lib/supabase';
 
-export default function RoomItem({ room }: { room: Room }) {
+function RoomItem({ room }: { room: Room }) {
   const { user, chosenRoom, choosingRoom } = useMainContext();
   // get permission (room's creator) to allow, remove, mute participant
   // toggle unsubscribers visible
@@ -99,8 +100,8 @@ export default function RoomItem({ room }: { room: Room }) {
 
   const className =
     chosenRoom === room.name
-      ? 'w-full rounded-2xl bg-blue-300 text-black overflow-hidden cursor-pointer text-center'
-      : 'w-full rounded-2xl bg-white text-black overflow-hidden cursor-pointer text-center';
+      ? 'w-full rounded-2xl bg-[#2e2e2e] text-white border border-black overflow-hidden cursor-pointer text-center'
+      : 'w-full rounded-2xl bg-black text-white overflow-hidden cursor-pointer text-center';
 
   return (
     <div className={className} onClick={() => choosingRoom(room.name)}>
@@ -231,3 +232,5 @@ function TrackItem({ track }: { track: TrackInfo }) {
       return <BsFillMicMuteFill />;
   }
 }
+
+export default memo(RoomItem);

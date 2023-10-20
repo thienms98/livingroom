@@ -9,11 +9,12 @@ export async function POST(req:NextRequest){
   try{
     await prisma.account.create({data: {
       password,
+      token: '',
       User: {
         create: {
           username,
           displayName,
-          metadata
+          metadata,
         }
       }
     }})

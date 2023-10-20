@@ -1,8 +1,8 @@
 import {sign, verify, decode} from 'jsonwebtoken'
 const jwt = {
-  sign: (payload:string) => {
+  sign: (payload:string|Object|Buffer, config?: {expiresIn?: number}) => {
     if(!process.env.TOKEN_SECRET) return null
-    return sign(payload, process.env.TOKEN_SECRET)
+    return sign(payload, process.env.TOKEN_SECRET, config)
   },
   verify: <T>(token: string):(T|null) =>  {
     if(!process.env.TOKEN_SECRET || !token) return null

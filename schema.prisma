@@ -18,6 +18,7 @@ model Profile {
 model Account {
   username String  @id
   password String
+  token    String
   User     Profile @relation(fields: [username], references: [username])
   Room     Room[]
 }

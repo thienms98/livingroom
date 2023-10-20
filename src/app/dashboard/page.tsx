@@ -7,16 +7,15 @@ import {
   RoomAudioRenderer,
   LayoutContextProvider,
 } from '@livekit/components-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMainContext } from '@/components/MainContext';
 import axios from 'axios';
-import { VideoPreset, VideoPresets } from 'livekit-client';
+import { VideoPresets } from 'livekit-client';
 import CustomVideoConference from '@/components/CustomVideoConference';
 import Account from '@/components/Account';
 import type { PinState } from '@livekit/components-core';
 import { AiOutlineMenu } from 'react-icons/ai';
 import Drawer from '@/components/Drawer';
-import prisma from '@/lib/prisma';
 
 const Page = () => {
   const { user, chosenRoom, choosingRoom } = useMainContext();
@@ -88,14 +87,12 @@ const Page = () => {
               </div>
             </div>
             <div>
-              {/* Your custom component with basic video conferencing functionality. */}
               <CustomVideoConference focusTrack={focusTrack[0]} />
-              {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
               <RoomAudioRenderer />
             </div>
             <Drawer
               visible={showDrawer}
-              className="sm:hidden grid grid-rows-[auto_150px] gap-2 px-2 pb-2"
+              className="sm:hidden grid grid-rows-[auto_90px] gap-2 px-2 pb-2"
               onClose={() => setShowDrawer((prev) => !prev)}
             >
               <Rooms />

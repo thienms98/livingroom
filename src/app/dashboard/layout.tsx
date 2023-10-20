@@ -18,13 +18,20 @@ type LayoutProps = {
 
 const Layout = (props: LayoutProps) => {
   const token = cookies().get('token')?.value;
-  if (!token) redirect('/login');
-  const user = jwt.verify<AccountType>(token || '');
+  let user;
+  try {
+    user = jwt.verify<AccountType>(token || '');
+  } catch (err) {
+    // redirect('/login');
+  }
+  if (!user) redirect('/login');
 
   return (
     user && (
       <div>
-        <MainContext user={user}>{props.children}</MainContext>
+        <MainContext user={user} token={token}>
+          {props.children}
+        </MainContext>
       </div>
     )
   );
