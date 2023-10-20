@@ -1,10 +1,11 @@
 import React, { memo } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 import { useMainContext } from './MainContext';
 import { DisconnectButton, TrackToggle } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import { BiExit } from 'react-icons/bi';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { MdLogout } from 'react-icons/md';
 
 const Account = () => {
   const { user } = useMainContext();
@@ -21,12 +22,14 @@ const Account = () => {
         />
         <span>{displayName}</span>
         <button
+          className="ml-auto"
           onClick={async () => {
             const { data } = await axios.post('/api/auth/logout');
             if (data) router.push('/login');
           }}
+          title="logout"
         >
-          Logout
+          <MdLogout />
         </button>
       </div>
       <div className="w-full flex flex-row gap-1 scale-[.8] origin-top-left">

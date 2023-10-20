@@ -7,7 +7,7 @@ export async function GET(req: NextRequest){
     select: {username:true, token: true}
   })
 
-  const amount = tokens.filter(({username, token}) => {
+  const valid = tokens.filter(({username, token}) => {
     if(!token) return false
     try{
       const data = jwt.verify(token)
@@ -16,8 +16,9 @@ export async function GET(req: NextRequest){
     }catch(err){
       return false
     }
-  }).length
+  })
+  const amount = valid.length
   console.log('online users: ', amount);
   
-  return NextResponse.json({tokens, amount})
+  return NextResponse.json({tokens, valid, amount})
 }
