@@ -24,7 +24,7 @@ const Layout = (props: LayoutProps) => {
   } catch (err) {
     // redirect('/login');
   }
-  if (!user) redirect('/login');
+  if (!user || !token) redirect('/login');
 
   return (
     user && (

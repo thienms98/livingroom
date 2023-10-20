@@ -45,12 +45,11 @@ const Page = () => {
           // table: 'room',
         },
         async (payload) => {
-          console.log(payload.table);
           if (payload.table === 'Room') await getRooms();
           if (payload.table === 'Account') await getOnlinesAmount();
         },
       )
-      .subscribe((status) => console.log(status));
+      .subscribe();
 
     return () => {
       if (supabase) {
