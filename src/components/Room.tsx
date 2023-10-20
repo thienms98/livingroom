@@ -48,7 +48,8 @@ export default function RoomItem({ room }: { room: Room }) {
       const { data } = await axios.get(`/api/room-participants-amount?room=${room.name}`);
       setRoomAmount(data.amount);
     }
-  }, [room.name]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room.name, participants.length]);
 
   useEffect(() => {
     (async () => await updateParticipantAmount())();
