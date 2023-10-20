@@ -2,7 +2,7 @@ import jwt from "@/lib/jwt";
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(){
+export async function POST(){
   const tokens = await prisma.account.findMany({
     select: {username:true, token: true}
   })
