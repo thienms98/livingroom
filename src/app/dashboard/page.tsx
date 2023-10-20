@@ -16,13 +16,57 @@ import Account from '@/components/Account';
 import type { PinState } from '@livekit/components-core';
 import { AiOutlineMenu } from 'react-icons/ai';
 import Drawer from '@/components/Drawer';
+import supabase from '@/lib/supabase';
+import { Room } from 'livekit-server-sdk';
 
 const Page = () => {
   const { user, chosenRoom, choosingRoom } = useMainContext();
   const [token, setToken] = useState<string>(chosenRoom || '');
   const [focusTrack, setFocusTrack] = useState<PinState>([]);
   const [showDrawer, setShowDrawer] = useState<boolean>(false);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [onlines, setOnlines] = useState<number>(0);
 
+  useEffect(() => {
+    (async () => {
+      await getRooms();
+      await getOnlinesAmount();
+    })();
+
+    // Listen to changes from db
+    if (!supabase) return;
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          // table: 'room',
+        },
+        async (payload) => {
+          console.log(payload.table);
+          if (payload.table === 'Room') await getRooms();
+          if (payload.table === 'Account') await getOnlinesAmount();
+        },
+      )
+      .subscribe((status) => console.log(status));
+
+    return () => {
+      if (supabase) {
+        supabase.removeChannel(channel);
+        // supabase.removeChannel(onlinesWatcher);
+      }
+    };
+  }, []);
+  const getOnlinesAmount = async () => {
+    const { data } = await axios.get('/api/online-users');
+    setOnlines(data.amount as number);
+  };
+  const getRooms = async () => {
+    const { data } = await axios.get('/api/rooms');
+    setRooms((data as Room[]) || []);
+  };
   useEffect(() => {
     if (!chosenRoom) return;
     (async () => {
@@ -75,7 +119,7 @@ const Page = () => {
         <LayoutContextProvider onPinChange={(state) => setFocusTrack(state)}>
           <div className="grid grid-cols-1 grid-rows-[50px_auto] sm:grid-rows-1 sm:grid-cols-[200px_auto] h-full">
             <div className="hidden sm:grid grid-rows-[auto_100px] p-2 pr-0 gap-2">
-              <Rooms />
+              <Rooms rooms={rooms} onlines={onlines} />
               <Account />
             </div>
             <div className="block sm:hidden rounded-md bg-[#1e1e1e] m-1 p-1">
@@ -95,7 +139,7 @@ const Page = () => {
               className="sm:hidden grid grid-rows-[auto_90px] gap-2 px-2 pb-2"
               onClose={() => setShowDrawer((prev) => !prev)}
             >
-              <Rooms />
+              <Rooms rooms={rooms} onlines={onlines} />
               <Account />
             </Drawer>
           </div>

@@ -9,57 +9,13 @@ import { Room } from 'livekit-server-sdk';
 import Modal from 'react-modal';
 import supabase from '@/lib/supabase';
 
-const Rooms = () => {
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [onlines, setOnlines] = useState<number>(0);
+const Rooms = ({ rooms, onlines }: { rooms: Room[]; onlines: number }) => {
   const [newRoom, setNewRoom] = useState<string>('');
   const [modal, setModal] = useState<boolean>(false);
 
-  useEffect(() => {
-    (async () => {
-      await getRooms();
-      await getOnlinesAmount();
-    })();
-
-    // Listen to changes from db
-    if (!supabase) return;
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          // table: 'room',
-        },
-        async (payload) => {
-          console.log(payload.table);
-          if (payload.table === 'Room') await getRooms();
-          if (payload.table === 'Account') await getOnlinesAmount();
-        },
-      )
-      .subscribe((status) => console.log(status));
-
-    return () => {
-      if (supabase) {
-        supabase.removeChannel(channel);
-        // supabase.removeChannel(onlinesWatcher);
-      }
-    };
-  }, []);
-
-  const getOnlinesAmount = async () => {
-    const { data } = await axios.get('/api/online-users');
-    setOnlines(data.amount as number);
-  };
-  const getRooms = async () => {
-    const { data } = await axios.get('/api/rooms');
-    setRooms((data as Room[]) || []);
-  };
   const createRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     await axios.post('/api/rooms', { room: newRoom });
-    getRooms();
     setNewRoom('');
     setModal(false);
   };
