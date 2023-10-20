@@ -20,7 +20,5 @@ export async function GET(){
   const amount = valid.length
   console.log('online users: ', amount);
   
-  return NextResponse.json({tokens, valid, amount}, {headers: {
-    'Cache-Control': 'no-cache'
-  },})
+  return NextResponse.json({tokens, valid: valid.map(({username})=> username), amount})
 }

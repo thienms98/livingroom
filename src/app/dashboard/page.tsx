@@ -25,7 +25,10 @@ const Page = () => {
   const [focusTrack, setFocusTrack] = useState<PinState>([]);
   const [showDrawer, setShowDrawer] = useState<boolean>(false);
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [onlines, setOnlines] = useState<number>(0);
+  const [onlines, setOnlines] = useState<{ valid: string[]; amount: number }>({
+    valid: [],
+    amount: 0,
+  });
 
   useEffect(() => {
     (async () => {
@@ -64,7 +67,7 @@ const Page = () => {
         'Cache-Control': 'no-cache',
       },
     });
-    setOnlines(data.amount as number);
+    setOnlines(data as { valid: string[]; amount: number });
   };
   const getRooms = async () => {
     const { data } = await axios.get('/api/rooms');
