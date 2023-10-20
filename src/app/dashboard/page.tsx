@@ -64,7 +64,9 @@ const Page = () => {
   const getOnlinesAmount = async () => {
     const { data } = await axios.get('/api/online-users', {
       headers: {
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'public, s-maxage=1',
+        'CDN-Cache-Control': 'public, s-maxage=60',
+        'Vercel-CDN-Cache-Control': 'public, s-maxage=0',
       },
     });
     setOnlines(data as { valid: string[]; amount: number });
