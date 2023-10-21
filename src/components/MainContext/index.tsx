@@ -47,7 +47,7 @@ export default function Context({
         axios
           .post('/api/auth/refreshToken', { username: user.username })
           .then(({ data }) => setTok(data.token)),
-      9 * 60 * 1000,
+      7 * 60 * 1000,
     );
 
     return () => clearTimeout(refreshTok);

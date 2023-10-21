@@ -15,6 +15,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <meta property="og:image" content="/livingroom.jpeg" />
+        <meta property="og:image:alt" content="Livingroom" />
+
+        <meta name="twitter:image" content="/livingroom.jpeg" />
+        <meta property="twitter:image:alt" content="Livingroom" />
+      </head>
       <body className={inter.className}>
         {children}
         <ToastContainer theme="dark" />
