@@ -1,27 +1,14 @@
 'use client';
 
+import { ContextType, Profile } from '@/utils/interfaces';
 import axios from 'axios';
 import { createContext, useContext, useEffect, useState } from 'react';
 
-export type AccountType = {
-  username: string;
-  email?: string;
-  metadata?: string;
-  displayName?: string;
-};
-
-type ContextType = {
-  user: AccountType;
-  chosenRoom: string | null;
-  choosingRoom: (room: string) => void;
-};
-
 const MainContext = createContext<ContextType>({
-  user: {
-    username: '',
-  },
   chosenRoom: null,
   choosingRoom: () => {},
+  profile: { username: '' },
+  setProfile: () => {},
 });
 
 export const useMainContext = () => {
@@ -34,10 +21,11 @@ export default function Context({
   token,
 }: {
   children: React.ReactNode;
-  user: AccountType;
+  user: Profile;
   token: string;
 }) {
   const [room, setRoom] = useState<string>('');
+  const [profile, setProfile] = useState<Profile>(user);
   const [tok, setTok] = useState<string>(token);
 
   // refreshToken
@@ -47,7 +35,7 @@ export default function Context({
         axios
           .post('/api/auth/refreshToken', { username: user.username })
           .then(({ data }) => setTok(data.token)),
-      7 * 60 * 1000,
+      8 * 60 * 1000,
     );
 
     return () => clearTimeout(refreshTok);
@@ -55,9 +43,10 @@ export default function Context({
 
   const choosingRoom = (room: string) => setRoom(room);
   const ctx: ContextType = {
-    user,
     chosenRoom: room,
     choosingRoom,
+    profile,
+    setProfile,
   };
 
   return <MainContext.Provider value={ctx}>{children}</MainContext.Provider>;

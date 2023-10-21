@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { useMainContext } from './MainContext';
+import { useMainContext } from '../MainContext';
 import {
   type ParticipantInfo,
   type TrackInfo,
@@ -23,7 +23,7 @@ import {
 import supabase from '@/lib/supabase';
 
 function RoomItem({ room }: { room: Room }) {
-  const { user, chosenRoom, choosingRoom } = useMainContext();
+  const { chosenRoom, choosingRoom } = useMainContext();
   // get permission (room's creator) to allow, remove, mute participant
   // toggle unsubscribers visible
   const [showUnsubscribers, setShowUnsubscribers] = useState<boolean>(false);
@@ -166,7 +166,7 @@ function Subscribers({
   removeParticipant: (identity: string) => void;
   muteParticipant: (identity: string, tracks_id?: string, mute?: boolean) => void;
 }) {
-  const { user } = useMainContext();
+  const { profile } = useMainContext();
 
   return (
     <ul>
@@ -176,7 +176,7 @@ function Subscribers({
 
         return (
           <li key={sid} className="flex flex-row items-center gap-2 px-4 my-1">
-            {user.username === identity || permission ? (
+            {profile.username === identity || permission ? (
               <>
                 <span className="flex-1 text-start">{identity}</span>
                 {myTracks.length === 0 && <BsFillMicMuteFill />}

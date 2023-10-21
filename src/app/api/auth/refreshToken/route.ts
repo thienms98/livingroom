@@ -29,7 +29,7 @@ export async function POST(req: NextRequest){
     username: data.username,
     displayName: data?.displayName || '',
     metadata: data?.metadata || ''
-  } as Object, {expiresIn: 10*60});
+  } as Object, {expiresIn: 15*60});
   if(!freshToken){ 
     removeToken(username);
     return NextResponse.json({msg: 'jwt fail'},{status: 403})

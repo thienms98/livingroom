@@ -1,6 +1,6 @@
 'use client';
 
-import Rooms from '@/components/Rooms';
+import Rooms from '@/components/common/Rooms';
 import {
   LiveKitRoom,
   VideoConference,
@@ -12,15 +12,16 @@ import { useMainContext } from '@/components/MainContext';
 import axios from 'axios';
 import { VideoPresets } from 'livekit-client';
 import CustomVideoConference from '@/components/CustomVideoConference';
-import Account from '@/components/Account';
+import Account from '@/components/common/Account';
 import type { PinState } from '@livekit/components-core';
 import { AiOutlineMenu } from 'react-icons/ai';
-import Drawer from '@/components/Drawer';
+import Drawer from '@/components/common/Drawer';
 import supabase from '@/lib/supabase';
 import { Room } from 'livekit-server-sdk';
+import type { Profile } from '@/utils/interfaces';
 
 const Page = () => {
-  const { user, chosenRoom, choosingRoom } = useMainContext();
+  const { chosenRoom, choosingRoom, profile, setProfile } = useMainContext();
   const [token, setToken] = useState<string>(chosenRoom || '');
   const [focusTrack, setFocusTrack] = useState<PinState>([]);
   const [showDrawer, setShowDrawer] = useState<boolean>(false);
@@ -50,6 +51,7 @@ const Page = () => {
         async (payload) => {
           if (payload.table === 'Room') await getRooms();
           if (payload.table === 'Account') await getOnlinesAmount();
+          if (payload.table === 'Profile') await getProfile();
         },
       )
       .subscribe();
@@ -61,11 +63,9 @@ const Page = () => {
       }
     };
   }, []);
+
+  // get data realtime
   const getOnlinesAmount = async () => {
-    // const res = await fetch('/api/online-users', {
-    //   cache: 'no-store',
-    // });
-    // const data = await res.json();
     const { data } = await axios.post('/api/online-users');
     setOnlines(data as { valid: string[]; amount: number });
   };
@@ -73,12 +73,17 @@ const Page = () => {
     const { data } = await axios.get('/api/rooms');
     setRooms((data as Room[]) || []);
   };
+  const getProfile = async () => {
+    const { data } = await axios(`/api/profile?username=${profile.username}`);
+    setProfile(data.profile as Profile);
+  };
+
   useEffect(() => {
     if (!chosenRoom) return;
     (async () => {
       try {
         const { data } = await axios(
-          `/api/auth/getParticipantToken?room=${chosenRoom}&username=${user.username}`,
+          `/api/auth/getParticipantToken?room=${chosenRoom}&username=${profile.username}`,
         );
         setToken(data.token);
       } catch (e) {
@@ -115,7 +120,7 @@ const Page = () => {
           if (!chosenRoom) return;
           const temp = chosenRoom || '';
           const { data } = await axios.delete(`/api/participants`, {
-            data: { room: chosenRoom, username: user.username },
+            data: { room: chosenRoom, username: profile.username },
           });
           choosingRoom('');
 

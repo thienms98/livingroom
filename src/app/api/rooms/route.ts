@@ -12,7 +12,7 @@ export const roomService = new RoomServiceClient(livekitHost, apiKey, apiSecret)
 export async function GET(req:NextRequest){
   try{
     const rooms = await prisma.room.findMany();
-    console.log('rooms\'s amount ', rooms.length);
+    console.log('total rooms: ', rooms.length);
     return NextResponse.json(rooms)
   }
   catch(err){
@@ -33,7 +33,7 @@ export async function POST(req:NextRequest){
   };
   try{
     const createdRoom = await roomService.createRoom(opts)
-    console.log('room created   ', createdRoom);
+    console.log('create room ', createdRoom);
     const myRoom = await prisma.room.create({data: {
       sid: createdRoom.sid,
       name: createdRoom.name,
@@ -59,7 +59,7 @@ export async function POST(req:NextRequest){
 export async function DELETE(req:NextRequest){
   const { room } = await req.json()
   roomService.deleteRoom(room).then(() => {
-    console.log('room deleted: ', room);
+    console.log('deleted room: ', room);
     prisma.room.delete({where: {name: room}})
   });
 }

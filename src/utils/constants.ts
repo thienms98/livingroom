@@ -1,0 +1,1 @@
+export const imageUrl:string = process.env.NEXT_PUBLIC_SUPABASE_IMAGE_URL || ''

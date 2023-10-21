@@ -14,10 +14,10 @@ export async function POST(req:NextRequest){
   if(!user) return NextResponse.json({message: 'Username or passowrd incorrect'}, {status: 401})
   const data = await prisma.profile.findUnique({where: {username}});
 
-  const token = jwt.sign(data as Object, {expiresIn: 10*60});
+  const token = jwt.sign(data as Object, {expiresIn: 15*60});
+  // console.log(token);
 
   if(!token) return NextResponse.json({message: 'gen token fail'})
-  console.log(token);
   await prisma.account.update({where: {username}, data: {token}})
   
   cookies().set('token', token)
