@@ -38,7 +38,7 @@ const Rooms = ({
   }, [showOnlines]);
 
   return (
-    <div className="bg-[#1e1e1e] rounded-lg overflow-hidden">
+    <div className="bg-[#1e1e1e] rounded-lg py-3 overflow-y-auto">
       <div className=" flex items-center justify-end mr-3 relative" ref={containerRef}>
         <div className="w-5 relative">
           <div className="absolute left-2 top-[calc(50%_-_4px)] w-2 h-2 bg-green-400 rounded-full overflow-hidden"></div>
@@ -84,21 +84,25 @@ const Rooms = ({
         style={{
           content: {
             width: '50%',
-            maxWidth: '500px',
+            maxWidth: '420px',
             height: 'auto',
             maxHeight: '170px',
             margin: 'auto auto',
             overflow: 'hidden',
             zIndex: 100,
+            background: '#2e2e2e',
+            border: '1px solid #000',
+            borderRadius: '16px',
+            padding: '16px 48px',
           },
           overlay: { backgroundColor: '#1e1e1e1e', zIndex: 100 },
         }}
       >
-        <form onSubmit={createRoom} className="m-3">
-          <h1 className="text-black">Create new room</h1>
+        <form onSubmit={createRoom} className="m-3 text-white ">
+          <h1 className="mb-1">Create new room</h1>
           <input
             type="text"
-            className="w-full border border-black py-1 text-black"
+            className="w-full border border-black py-1 text-white bg-[#1e1e1e] outline-none pl-4"
             value={newRoom}
             onChange={(e) => setNewRoom(e.target.value)}
             autoFocus={true}
@@ -107,7 +111,7 @@ const Rooms = ({
           {/* strict mode allow creator to controls participants
                 <label htmlFor="checkbox">Strict mode</label>
                 <input type="checkbox" onChange={(e) => e.target.checked} /> */}
-          <div className="flex justify-center gap-5 mt-4">
+          <div className="flex justify-center gap-5 mt-6">
             <button
               type="button"
               className="px-3 py-1 rounded-md text-white bg-red-400 hover:bg-red-600"
